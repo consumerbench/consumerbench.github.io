@@ -124,12 +124,12 @@
 
         /* Sections */
         section {
-            padding: 3rem 0;
+            padding: 1.5rem 0;
         }
 
         @media (min-width: 768px) {
             section {
-                padding: 5rem 0;
+                padding: 2rem 0;
             }
         }
 
@@ -157,7 +157,7 @@
         h2 {
             font-size: 1.875rem;
             font-weight: 600;
-            margin-bottom: 2rem;
+            margin-bottom: 1.25rem;
             text-align: center;
         }
 
@@ -190,7 +190,7 @@
             border: 1px solid hsl(var(--border));
             border-radius: 0.5rem;
             padding: 1.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
 
         .grid {
@@ -463,6 +463,42 @@
         </div>
     </section>
 
+    <!-- Why It Matters -->
+    <section>
+        <div class="container">
+            <h2>Why It Matters</h2>
+
+            <div class="card">
+                <p style="font-size: 1.125rem; margin-bottom: 2rem; text-align: center;">
+                    ConsumerBench bridges a major gap between cloud-centric AI benchmarking and real-world on-device deployment.
+                </p>
+
+                <div class="grid grid-3">
+                    <div style="text-align: center; padding: 1rem;">
+                        <h4 style="font-weight: 600; margin-bottom: 0.5rem;">Model Developers</h4>
+                        <p style="font-size: 0.875rem;">Pinpoint inefficiencies in their kernels and optimize for concurrent execution</p>
+                    </div>
+
+                    <div style="text-align: center; padding: 1rem;">
+                        <h4 style="font-weight: 600; margin-bottom: 0.5rem;">System Designers</h4>
+                        <p style="font-size: 0.875rem;">Explore new scheduling and memory-management strategies for on-device AI</p>
+                    </div>
+
+                    <div style="text-align: center; padding: 1rem;">
+                        <h4 style="font-weight: 600; margin-bottom: 0.5rem;">Device Manufacturers</h4>
+                        <p style="font-size: 0.875rem;">Understand how different workloads coexist on shared hardware</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; padding: 1.5rem; background: hsl(var(--primary) / 0.1); border-radius: 0.5rem; border: 1px solid hsl(var(--primary) / 0.2);">
+                    <p style="font-size: 1rem; font-weight: 500; text-align: center; margin: 0;">
+                        By treating the end-user device as a <strong>first-class platform for AI</strong>, ConsumerBench paves the way toward responsive, energy-efficient, and fair on-device intelligence.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Architecture -->
     <section id="architecture" class="section-bg">
         <div class="container">
@@ -715,42 +751,6 @@
                     <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem; text-align: center;">Flexible Resource Management</h3>
                     <p style="font-size: 0.875rem; text-align: center;">
                         Move beyond static GPU partitions toward dynamic, SLO-aware scheduling that balances fairness and efficiency.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Why It Matters -->
-    <section>
-        <div class="container">
-            <h2>Why It Matters</h2>
-
-            <div class="card">
-                <p style="font-size: 1.125rem; margin-bottom: 2rem; text-align: center;">
-                    ConsumerBench bridges a major gap between cloud-centric AI benchmarking and real-world on-device deployment.
-                </p>
-
-                <div class="grid grid-3">
-                    <div style="text-align: center; padding: 1rem;">
-                        <h4 style="font-weight: 600; margin-bottom: 0.5rem;">Model Developers</h4>
-                        <p style="font-size: 0.875rem;">Pinpoint inefficiencies in their kernels and optimize for concurrent execution</p>
-                    </div>
-
-                    <div style="text-align: center; padding: 1rem;">
-                        <h4 style="font-weight: 600; margin-bottom: 0.5rem;">System Designers</h4>
-                        <p style="font-size: 0.875rem;">Explore new scheduling and memory-management strategies for on-device AI</p>
-                    </div>
-
-                    <div style="text-align: center; padding: 1rem;">
-                        <h4 style="font-weight: 600; margin-bottom: 0.5rem;">Device Manufacturers</h4>
-                        <p style="font-size: 0.875rem;">Understand how different workloads coexist on shared hardware</p>
-                    </div>
-                </div>
-
-                <div style="margin-top: 2rem; padding: 1.5rem; background: hsl(var(--primary) / 0.1); border-radius: 0.5rem; border: 1px solid hsl(var(--primary) / 0.2);">
-                    <p style="font-size: 1rem; font-weight: 500; text-align: center; margin: 0;">
-                        By treating the end-user device as a <strong>first-class platform for AI</strong>, ConsumerBench paves the way toward responsive, energy-efficient, and fair on-device intelligence.
                     </p>
                 </div>
             </div>
