@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>ConsumerBench: Benchmarking GenAI on End-User Devices</title>
+    <meta name="description" content="ConsumerBench is the first comprehensive benchmarking framework for generative AI applications running directly on end-user devices. It captures realistic, concurrent execution of multiple GenAI apps competing for limited local resources." />
+
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="ConsumerBench: Benchmarking GenAI on End-User Devices" />
+    <meta property="og:description" content="The first comprehensive benchmarking framework for multi-application GenAI workloads on consumer hardware." />
+    <meta property="og:type" content="website" />
+
+    <!-- Favicon (transparent/empty) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'/>" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 0 0% 13%;
+            --muted: 0 0% 96%;
+            --muted-foreground: 0 0% 40%;
+            --primary: 142 76% 36%;
+            --primary-foreground: 0 0% 100%;
+            --accent: 142 76% 97%;
+            --accent-foreground: 142 76% 36%;
+            --card: 0 0% 100%;
+            --card-foreground: 0 0% 13%;
+            --border: 0 0% 90%;
+            --warning: 38 92% 50%;
+            --success: 142 76% 36%;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: hsl(var(--background));
+            color: hsl(var(--foreground));
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1152px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Header */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: hsl(var(--background) / 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 56px;
+        }
+
+        nav {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        nav a {
+            color: hsl(var(--muted-foreground));
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: hsl(var(--foreground));
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid hsl(var(--border));
+            color: hsl(var(--foreground));
+        }
+
+        .btn-lg {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
+
+        /* Sections */
+        section {
+            padding: 3rem 0;
+        }
+
+        @media (min-width: 768px) {
+            section {
+                padding: 5rem 0;
+            }
+        }
+
+        .section-border {
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .section-bg {
+            background: hsl(var(--muted) / 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 3.5rem;
+            }
+        }
+
+        h2 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 1rem;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+        }
+
+        .hero-desc {
+            font-size: 1.125rem;
+            max-width: 56rem;
+            margin: 0 auto 3rem;
+            line-height: 1.75;
+        }
+
+        /* Cards */
+        .card {
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Architecture Diagram */
+        .arch-diagram {
+            background: linear-gradient(135deg, hsl(var(--accent)), hsl(142 76% 95%));
+            border: 1px solid hsl(142 76% 85%);
+            border-radius: 0.5rem;
+            padding: 3rem 2rem;
+            margin: 3rem auto;
+            max-width: 56rem;
+        }
+
+        .arch-box {
+            background: hsl(var(--background) / 0.9);
+            backdrop-filter: blur(4px);
+            border: 1px solid hsl(var(--border));
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .arch-box:hover {
+            transform: translateY(-4px);
+        }
+
+        .arch-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: hsl(var(--primary) / 0.2);
+            color: hsl(var(--primary));
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-size: 0.875rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        th {
+            font-weight: 600;
+            background: hsl(var(--muted));
+            color: hsl(var(--foreground));
+        }
+
+        tr:hover {
+            background: hsl(var(--muted) / 0.3);
+        }
+
+        .highlight-row {
+            background: hsl(var(--primary) / 0.1);
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            padding: 2rem 0;
+            border-top: 1px solid hsl(var(--border));
+            text-align: center;
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        footer a {
+            color: hsl(var(--primary));
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* BibTeX */
+        .bibtex {
+            background: hsl(var(--muted));
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .flex-center {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .icon {
+            width: 2rem;
+            height: 2rem;
+            color: hsl(var(--primary));
+        }
+
+        /* Code blocks */
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: hsl(var(--muted));
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-size: 0.875em;
+        }
+
+        /* Insights boxes */
+        .insight-box {
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .insight-box.warning {
+            background: hsl(var(--warning) / 0.1);
+            border-color: hsl(var(--warning));
+        }
+
+        .insight-box.success {
+            background: hsl(var(--success) / 0.1);
+            border-color: hsl(var(--success));
+        }
+
+        .insight-box h4 {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+        }
+
+        /* Author links */
+        .authors {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0 2rem;
+        }
+
+        .authors a {
+            color: hsl(var(--primary));
+            text-decoration: none;
+            font-size: 1.125rem;
+        }
+
+        .authors a:hover {
+            text-decoration: underline;
+        }
+
+        .authors span {
+            color: hsl(var(--muted-foreground));
+            font-size: 1.125rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <h1 style="font-size: 1.125rem; margin: 0;">ConsumerBench</h1>
+            <nav>
+                <a href="#introduction">Introduction</a>
+                <a href="#architecture">Architecture</a>
+                <a href="#results">Results</a>
+                <a href="#citation">Citation</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="section-border">
+        <div class="container hero">
+            <h1>
+                ConsumerBench: Benchmarking GenAI on<br />
+                End-User Devices
+            </h1>
+
+            <p class="hero-desc">
+                The first comprehensive benchmarking framework for generative AI applications running directly on end-user devices. Unlike traditional benchmarks that assume exclusive GPU access in cloud datacenters, ConsumerBench captures the realistic, concurrent execution of multiple GenAI apps such as chatbots, image generation, live captioning, and research agents competing for limited local resources.
+            </p>
+
+            <div class="authors">
+                <a href="https://ikace.github.io/" target="_blank">Yile Gu</a><span>,</span>
+                <a href="https://homes.cs.washington.edu/~rohankad/" target="_blank">Rohan Kadekodi</a><span>,</span>
+                <a href="https://www.kipiiler.me/" target="_blank">Hoang Nguyen</a><span>,</span>
+                <a href="https://kamahori.org/" target="_blank">Keisuke Kamahori</a><span>,</span>
+                <a href="https://lau.yeeyu.org/" target="_blank">Yiyu Liu</a><span>,</span>
+                <a href="http://bariskasikci.org/" target="_blank">Baris Kasikci</a>
+            </div>
+
+            <div class="flex-center" style="padding-top: 1rem;">
+                <a href="https://arxiv.org/abs/2506.17538" target="_blank" class="btn btn-lg" style="background: #24292e; color: white; border: 1px solid #1b1f23;">
+                    📄 Read Paper
+                </a>
+                <a href="https://github.com/efeslab/ConsumerBench" target="_blank" class="btn btn-lg" style="background: #24292e; color: white; border: 1px solid #1b1f23;">
+                    <svg style="width: 1.25rem; height: 1.25rem; fill: currentColor;" viewBox="0 0 16 16">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                    </svg>
+                    <span style="margin-left: 0.5rem;">GitHub</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Introduction -->
+    <section id="introduction">
+        <div class="container">
+            <h2>The Challenge of On-Device AI</h2>
+
+            <div class="card">
+                <p style="font-size: 1.125rem; margin-bottom: 1.5rem;">
+                    Generative AI has shifted from cloud servers to local devices such as laptops and smartphones. This migration is motivated by privacy, low latency, and offline availability—but it introduces new systems challenges.
+                </p>
+
+                <div class="grid grid-2">
+                    <div>
+                        <h3>🔄 Multi-Application Reality</h3>
+                        <p>Unlike cloud environments, end-user devices must juggle multiple concurrent applications, each powered by distinct AI models with different service-level objectives (SLOs).</p>
+                    </div>
+                    <div>
+                        <h3>📊 Traditional Benchmarks Fall Short</h3>
+                        <p>Existing benchmarks evaluate models in isolation, measuring throughput and efficiency on dedicated hardware but overlooking what happens when models compete.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>ConsumerBench Fills This Gap</h3>
+                <p>
+                    ConsumerBench models real multi-application execution on resource-constrained hardware, measuring both application-level SLOs (latency, throughput) and system-level metrics (GPU utilization, memory bandwidth, power) to reveal critical inefficiencies and guide the design of efficient on-device AI systems.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture -->
+    <section id="architecture" class="section-bg">
+        <div class="container">
+            <h2>Framework Architecture</h2>
+
+            <p class="text-center" style="max-width: 56rem; margin: 0 auto 2rem; font-size: 1.125rem;">
+                ConsumerBench orchestrates realistic GenAI workloads through a flexible, graph-based execution model.
+            </p>
+
+            <!-- Architecture Diagram -->
+            <div style="margin: 3rem auto; max-width: 64rem;">
+                <div style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <img src="./design.png" alt="ConsumerBench Architecture" style="width: 100%; height: auto; border-radius: 0.5rem; display: block;" />
+                </div>
+                <p style="font-size: 0.875rem; color: hsl(var(--muted-foreground)); text-align: center; margin-top: 1rem;">
+                    ConsumerBench architecture: from YAML configuration to DAG execution with comprehensive monitoring and reporting
+                </p>
+            </div>
+
+            <!-- YAML Configuration Example -->
+            <div style="margin: 3rem auto; max-width: 64rem;">
+                <h3 style="text-align: center; margin-bottom: 1.5rem;">Simple YAML Configuration</h3>
+                <div class="grid grid-2" style="gap: 1.5rem;">
+                    <!-- Task Definition -->
+                    <div style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                        <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem; text-align: center; color: hsl(var(--foreground));">(a) Task Definition</h4>
+                        <div style="background: hsl(var(--muted)); border-radius: 0.375rem; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; line-height: 1.5; overflow-x: auto;">
+<pre style="margin: 0; white-space: pre;"><span style="color: hsl(var(--muted-foreground));">1</span>  <span style="color: hsl(142 76% 36%);">Analysis</span> (DeepResearch):
+<span style="color: hsl(var(--muted-foreground));">2</span>    <span style="color: hsl(217 91% 60%);">model:</span> Llama-3.2-3B
+<span style="color: hsl(var(--muted-foreground));">3</span>    <span style="color: hsl(217 91% 60%);">num_requests:</span> 1
+<span style="color: hsl(var(--muted-foreground));">4</span>    <span style="color: hsl(217 91% 60%);">device:</span> cpu
+<span style="color: hsl(var(--muted-foreground));">5</span>  <span style="color: hsl(142 76% 36%);">Creating Cover Art</span> (ImageGen):
+<span style="color: hsl(var(--muted-foreground));">6</span>    <span style="color: hsl(217 91% 60%);">model:</span> SD-3.5-Medium-Turbo
+<span style="color: hsl(var(--muted-foreground));">7</span>    <span style="color: hsl(217 91% 60%);">num_requests:</span> 5
+<span style="color: hsl(var(--muted-foreground));">8</span>    <span style="color: hsl(217 91% 60%);">device:</span> gpu
+<span style="color: hsl(var(--muted-foreground));">9</span>    <span style="color: hsl(217 91% 60%);">slo:</span> 1s
+<span style="color: hsl(var(--muted-foreground));">10</span> <span style="color: hsl(142 76% 36%);">Generating Captions</span> (LiveCaptions):
+<span style="color: hsl(var(--muted-foreground));">11</span>   <span style="color: hsl(217 91% 60%);">model:</span> Whisper-Large-V3-Turbo
+<span style="color: hsl(var(--muted-foreground));">12</span>   <span style="color: hsl(217 91% 60%);">num_requests:</span> 1
+<span style="color: hsl(var(--muted-foreground));">13</span>   <span style="color: hsl(217 91% 60%);">device:</span> gpu
+<span style="color: hsl(var(--muted-foreground));">14</span>   ...</pre>
+                        </div>
+                    </div>
+
+                    <!-- Workflow Definition -->
+                    <div style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                        <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem; text-align: center; color: hsl(var(--foreground));">(b) Workflow Definition</h4>
+                        <div style="background: hsl(var(--muted)); border-radius: 0.375rem; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; line-height: 1.5; overflow-x: auto;">
+<pre style="margin: 0; white-space: pre;"><span style="color: hsl(var(--muted-foreground));">1</span>  <span style="color: hsl(142 76% 36%);">analysis_1:</span>
+<span style="color: hsl(var(--muted-foreground));">2</span>    <span style="color: hsl(217 91% 60%);">uses:</span> Analysis
+<span style="color: hsl(var(--muted-foreground));">3</span>  <span style="color: hsl(142 76% 36%);">cover_art:</span>
+<span style="color: hsl(var(--muted-foreground));">4</span>    <span style="color: hsl(217 91% 60%);">uses:</span> Creating Cover Art
+<span style="color: hsl(var(--muted-foreground));">5</span>    <span style="color: hsl(217 91% 60%);">depend_on:</span> [<span style="color: hsl(38 92% 50%);">"analysis_1"</span>]
+<span style="color: hsl(var(--muted-foreground));">6</span>  <span style="color: hsl(142 76% 36%);">analysis_2:</span>
+<span style="color: hsl(var(--muted-foreground));">7</span>    <span style="color: hsl(217 91% 60%);">uses:</span> Analysis
+<span style="color: hsl(var(--muted-foreground));">8</span>    <span style="color: hsl(217 91% 60%);">depend_on:</span> [<span style="color: hsl(38 92% 50%);">"analysis_1"</span>]
+<span style="color: hsl(var(--muted-foreground));">9</span>  <span style="color: hsl(142 76% 36%);">generate_captions:</span>
+<span style="color: hsl(var(--muted-foreground));">10</span>   <span style="color: hsl(217 91% 60%);">uses:</span> Generating Captions
+<span style="color: hsl(var(--muted-foreground));">11</span>   <span style="color: hsl(217 91% 60%);">depend_on:</span> [<span style="color: hsl(38 92% 50%);">"cover_art"</span>,
+<span style="color: hsl(var(--muted-foreground));">12</span>              <span style="color: hsl(38 92% 50%);">"analysis_2"</span>]
+<span style="color: hsl(var(--muted-foreground));">13</span>   ...</pre>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size: 0.875rem; color: hsl(var(--muted-foreground)); text-align: center; margin-top: 1rem;">
+                    Example YAML configuration showing (a) task definition with models and SLOs, and (b) workflow definition with dependencies
+                </p>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3>Key Features</h3>
+                    <ul style="margin-left: 1.5rem; color: hsl(var(--muted-foreground));">
+                        <li style="margin-bottom: 0.5rem;"><strong>Multi-application workflows:</strong> Define tasks and dependencies using simple YAML</li>
+                        <li style="margin-bottom: 0.5rem;"><strong>SLO tracking:</strong> Measure per-app latency and SLO attainment</li>
+                        <li style="margin-bottom: 0.5rem;"><strong>System-level monitoring:</strong> GPU/CPU utilization, memory bandwidth, power via NVIDIA DCGM and Intel PCM</li>
+                        <li style="margin-bottom: 0.5rem;"><strong>Flexible orchestration:</strong> Greedy allocation, static partitioning, or shared inference servers</li>
+                        <li style="margin-bottom: 0.5rem;"><strong>Extensibility:</strong> Plug in custom apps via <code>setup()</code>, <code>execute()</code>, <code>cleanup()</code> interface</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Supported Applications</h3>
+                    <table style="margin: 0;">
+                        <thead>
+                            <tr>
+                                <th>Application</th>
+                                <th>Modality</th>
+                                <th>Model</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Chatbot</strong></td>
+                                <td>text → text</td>
+                                <td>Llama-3.2-3B</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DeepResearch</strong></td>
+                                <td>agent</td>
+                                <td>Llama-3.2-3B</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ImageGen</strong></td>
+                                <td>text → image</td>
+                                <td>SD-3.5-Turbo</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LiveCaptions</strong></td>
+                                <td>audio → text</td>
+                                <td>Whisper-v3-Turbo</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="font-size: 0.875rem; margin-top: 1rem;">These applications span interactive and background workloads, reflecting modern consumer AI diversity.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Results -->
+    <section id="results">
+        <div class="container">
+            <h2>Key Evaluation Results</h2>
+
+            <p class="text-center" style="max-width: 56rem; margin: 0 auto 2rem; font-size: 1.125rem;">
+                Benchmarked on consumer-grade RTX 6000 GPU and MacBook M1 Pro, revealing critical inefficiencies in current systems.
+            </p>
+
+            <!-- Concurrent Execution Results -->
+            <div style="margin: 3rem auto; max-width: 64rem;">
+                <h3 style="text-align: center; margin-bottom: 1.5rem;">Concurrent Application Execution: Greedy vs. GPU Partitioning</h3>
+                <div style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <img src="./eval_concurrent_app.png" alt="Concurrent Application Evaluation" style="width: 100%; height: auto; border-radius: 0.5rem; display: block;" />
+                </div>
+                <p style="font-size: 0.875rem; color: hsl(var(--muted-foreground)); text-align: center; margin-top: 1rem;">
+                    Comparison of greedy allocation vs. GPU partitioning (MPS) showing normalized latency and GPU utilization patterns.
+                    Greedy scheduling causes 12.4× latency increase for LiveCaptions due to starvation, while partitioning improves fairness but reduces overall GPU utilization.
+                </p>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3>⚠️ Resource Contention Hurts Fairness</h3>
+                    <div class="insight-box warning">
+                        <p style="margin: 0;">
+                            Under <strong>greedy GPU allocation</strong>, large-kernel workloads like image generation monopolize GPU resources, starving lighter tasks like live captioning—causing up to <strong>12.4× latency increase</strong> and near-zero SLO attainment.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📉 Static Partitioning Wastes Performance</h3>
+                    <div class="insight-box warning">
+                        <p style="margin: 0;">
+                            Evenly dividing GPU resources (e.g., via NVIDIA MPS) improves fairness but leads to <strong>under-utilization</strong>: idle partitions cannot borrow unused compute, lowering throughput despite available capacity.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔄 Real-World Workflows Expose Trade-offs</h3>
+                <p style="font-size: 1.125rem; margin-bottom: 1.5rem; text-align: center;">
+                    In a realistic content-creation workflow (brainstorm → analysis → cover art → captioning):
+                </p>
+
+                <!-- Workflow Results -->
+                <div class="grid grid-2" style="margin-bottom: 2rem;">
+                    <div>
+                        <h4 style="font-weight: 600; margin-bottom: 1rem; text-align: center;">Greedy Scheduling</h4>
+                        <div style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 0.5rem; padding: 1rem; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                            <img src="./eval-workflow-slo-greedy.png" alt="Greedy Scheduling Workflow Results" style="width: 100%; height: auto; border-radius: 0.5rem; display: block;" />
+                        </div>
+                        <p style="font-size: 0.875rem; margin-top: 0.75rem; text-align: center; color: hsl(var(--muted-foreground));">
+                            Cuts total runtime by <strong>45%</strong> but risks starvation for interactive apps (9.5× SLO violation for live captioning)
+                        </p>
+                    </div>
+                    <div>
+                        <h4 style="font-weight: 600; margin-bottom: 1rem; text-align: center;">GPU Partitioning (MPS)</h4>
+                        <div style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 0.5rem; padding: 1rem; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                            <img src="./eval-workflow-slo-mps.png" alt="MPS Partitioning Workflow Results" style="width: 100%; height: auto; border-radius: 0.5rem; display: block;" />
+                        </div>
+                        <p style="font-size: 0.875rem; margin-top: 0.75rem; text-align: center; color: hsl(var(--muted-foreground));">
+                            Improves fairness and SLO attainment but increases total completion time by <strong>2.2×</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="insight-box success">
+                    <h4>Key Insight</h4>
+                    <p style="margin: 0;">
+                        <strong>No single policy fits all scenarios</strong>—systems must adapt dynamically based on workload characteristics and SLO requirements.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🖥️ Inference Servers Aren't One-Size-Fits-All</h3>
+                <p>
+                    When applications share a single model through an inference server (e.g., Chatbot + DeepResearch on llama.cpp), fixed configurations like large KV caches can <strong>harm interactive latency</strong>, revealing the need for SLO-aware adaptive servers.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>⚡ Need for Dynamic GPU Scheduling</h3>
+                <p>
+                    There is a critical need for dynamic GPU scheduling policies that are <strong>SLO-aware</strong> and transparently share GPU resources across multiple GenAI applications. Existing dynamic scheduling systems (Orion, REEF, etc.) fail to run applications off-the-shelf without modifications or manual CUDA kernel inspection.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Insights -->
+    <section class="section-bg">
+        <div class="container">
+            <h2>Insights for Future Design</h2>
+
+            <div class="grid grid-3">
+                <div class="card">
+                    <div style="margin-bottom: 1rem; display: flex; justify-content: center;">
+                        <div style="width: 4rem; height: 4rem; border-radius: 50%; background: hsl(var(--primary) / 0.2); display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 2rem;">🏗️</span>
+                        </div>
+                    </div>
+                    <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem; text-align: center;">Architectural Efficiency</h3>
+                    <p style="font-size: 0.875rem; text-align: center;">
+                        Design model kernels to maximize SM occupancy and minimize register pressure for better concurrent execution.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div style="margin-bottom: 1rem; display: flex; justify-content: center;">
+                        <div style="width: 4rem; height: 4rem; border-radius: 50%; background: hsl(var(--primary) / 0.2); display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 2rem;">🔄</span>
+                        </div>
+                    </div>
+                    <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem; text-align: center;">Concurrency-Aware Kernels</h3>
+                    <p style="font-size: 0.875rem; text-align: center;">
+                        Anticipate multi-app co-execution when implementing GPU kernels to avoid resource monopolization.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div style="margin-bottom: 1rem; display: flex; justify-content: center;">
+                        <div style="width: 4rem; height: 4rem; border-radius: 50%; background: hsl(var(--primary) / 0.2); display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 2rem;">⚖️</span>
+                        </div>
+                    </div>
+                    <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem; text-align: center;">Flexible Resource Management</h3>
+                    <p style="font-size: 0.875rem; text-align: center;">
+                        Move beyond static GPU partitions toward dynamic, SLO-aware scheduling that balances fairness and efficiency.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why It Matters -->
+    <section>
+        <div class="container">
+            <h2>Why It Matters</h2>
+
+            <div class="card">
+                <p style="font-size: 1.125rem; margin-bottom: 2rem; text-align: center;">
+                    ConsumerBench bridges a major gap between cloud-centric AI benchmarking and real-world on-device deployment.
+                </p>
+
+                <div class="grid grid-3">
+                    <div style="text-align: center; padding: 1rem;">
+                        <h4 style="font-weight: 600; margin-bottom: 0.5rem;">Model Developers</h4>
+                        <p style="font-size: 0.875rem;">Pinpoint inefficiencies in their kernels and optimize for concurrent execution</p>
+                    </div>
+
+                    <div style="text-align: center; padding: 1rem;">
+                        <h4 style="font-weight: 600; margin-bottom: 0.5rem;">System Designers</h4>
+                        <p style="font-size: 0.875rem;">Explore new scheduling and memory-management strategies for on-device AI</p>
+                    </div>
+
+                    <div style="text-align: center; padding: 1rem;">
+                        <h4 style="font-weight: 600; margin-bottom: 0.5rem;">Device Manufacturers</h4>
+                        <p style="font-size: 0.875rem;">Understand how different workloads coexist on shared hardware</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; padding: 1.5rem; background: hsl(var(--primary) / 0.1); border-radius: 0.5rem; border: 1px solid hsl(var(--primary) / 0.2);">
+                    <p style="font-size: 1rem; font-weight: 500; text-align: center; margin: 0;">
+                        By treating the end-user device as a <strong>first-class platform for AI</strong>, ConsumerBench paves the way toward responsive, energy-efficient, and fair on-device intelligence.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contributions -->
+    <section class="section-bg">
+        <div class="container">
+            <h2>Get Involved</h2>
+
+            <div class="card" style="max-width: 48rem; margin: 0 auto;">
+                <h3 style="text-align: center; margin-bottom: 1.5rem;">We Welcome Contributions</h3>
+
+                <p style="text-align: center; margin-bottom: 2rem;">
+                    Check out the code and feel free to post requests or bug reports at our
+                    <a href="https://github.com/efeslab/ConsumerBench/issues" target="_blank" style="color: hsl(var(--primary)); text-decoration: none; font-weight: 500;">GitHub Issues</a>.
+                </p>
+
+                <div class="grid grid-3">
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">➕</div>
+                        <h4 style="font-size: 0.875rem; font-weight: 600;">New Applications</h4>
+                    </div>
+
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔄</div>
+                        <h4 style="font-size: 0.875rem; font-weight: 600;">Realistic Workflows</h4>
+                    </div>
+
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🖥️</div>
+                        <h4 style="font-size: 0.875rem; font-weight: 600;">Different GPUs</h4>
+                    </div>
+                </div>
+
+                <div class="flex-center" style="margin-top: 2rem;">
+                    <a href="https://github.com/efeslab/ConsumerBench" target="_blank" class="btn btn-primary btn-lg">
+                        <svg style="width: 1.25rem; height: 1.25rem; fill: currentColor;" viewBox="0 0 16 16">
+                            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                        </svg>
+                        <span style="margin-left: 0.5rem;">View on GitHub</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Citation -->
+    <section id="citation">
+        <div class="container">
+            <h2>Citation</h2>
+
+            <div class="card" style="max-width: 48rem; margin: 0 auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="margin: 0;">BibTeX</h3>
+                    <button class="btn btn-outline" onclick="copyBibtex()">
+                        📋 Copy
+                    </button>
+                </div>
+
+                <div class="bibtex" id="bibtex">@article{consumerbench2025,
+  title={ConsumerBench: Benchmarking GenAI on End-User Devices},
+  author={Gu, Yile and Kadekodi, Rohan and Nguyen, Hoang and Kamahori, Keisuke and Liu, Yiyu and Kasikci, Baris},
+  journal={arXiv preprint arXiv:2506.17538},
+  year={2025}
+}</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>ConsumerBench: Benchmarking GenAI on End-User Devices</p>
+            <p style="margin-top: 0.5rem;">
+                Paper: <a href="https://arxiv.org/abs/2506.17538" target="_blank">arXiv:2506.17538</a> |
+                Code: <a href="https://github.com/efeslab/ConsumerBench" target="_blank">GitHub</a>
+            </p>
+            <p style="margin-top: 0.5rem; font-size: 0.75rem;">
+                University of Washington Efficient Systems Lab
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        function copyBibtex() {
+            const bibtex = document.getElementById('bibtex').textContent;
+            navigator.clipboard.writeText(bibtex).then(() => {
+                alert('BibTeX copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>
